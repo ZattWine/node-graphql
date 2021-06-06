@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ZattWine/node-graphql/issues"
   },
-  "homepage": "https://github.com/ZattWine/node-graphql#readme"
+  "homepage": "https://github.com/ZattWine/node-graphql#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
 }
