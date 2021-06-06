@@ -4,6 +4,11 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const multer = require("multer");
+const cors = require("cors");
+const { graphqlHTTP } = require("express-graphql");
+
+const graphqlSchema = require("./graphql/schema");
+const graphqlResolvers = require("./graphql/resolvers");
 
 const app = express();
 
@@ -48,6 +53,20 @@ app.use(
 );
 app.use("/images", express.static(path.join(__dirname, "images")));
 
+/**
+ * To solve Cross-Origin Resource Sharing.
+ */
+app.use(cors());
+
+app.use(
+  "/graphql",
+  graphqlHTTP({
+    schema: graphqlSchema,
+    rootValue: graphqlResolvers,
+    graphiql: true,
+  })
+);
+
 // Errors handling
 app.use((error, req, res, next) => {
   console.log(error);
@@ -64,5 +83,6 @@ mongoose
   )
   .then((result) => {
     console.log("CONNECTED TO DATABASE!");
+    app.listen(8080);
   })
   .catch((err) => console.log(err));
