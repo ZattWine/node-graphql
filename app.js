@@ -1,4 +1,5 @@
 const path = require("path");
+const fs = require("fs");
 
 const express = require("express");
 const bodyParser = require("body-parser");
@@ -68,6 +69,28 @@ app.use((req, res, next) => {
 /* auth */
 app.use(auth);
 
+/**
+ * graphql only work with json.
+ * so, file upload need other route.
+ */
+app.put("/post-image", (req, res, next) => {
+  // check auth
+  if (!req.isAuth) {
+    throw new Error("Not authenticated.");
+  }
+
+  if (!req.file) {
+    return res.status(200).json({ message: "No file provided." });
+  }
+
+  if (req.body.oldPath) {
+    clearImage(req.body.oldPath);
+  }
+  return res
+    .status(201)
+    .json({ message: "File stored.", filePath: req.file.path });
+});
+
 /* handling errors in graphql */
 app.use(
   "/graphql",
@@ -111,3 +134,13 @@ mongoose
     app.listen(8080);
   })
   .catch((err) => console.log(err));
+
+/**
+ * Helper function for clearing image.
+ */
+const clearImage = (filePath) => {
+  filePath = path.join(__dirname, "..", filePath);
+  fs.unlink(filePath, (err) => {
+    console.log(err);
+  });
+};
