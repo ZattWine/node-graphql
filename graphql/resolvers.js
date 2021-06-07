@@ -195,4 +195,65 @@ module.exports = {
       updatedAt: post.updatedAt.toISOString(),
     };
   },
+
+  updatePost: async ({ id, postInput }, req) => {
+    // check auth
+    if (!req.isAuth) {
+      const error = new Error("Not authenticated.");
+      error.code = 401;
+      throw error;
+    }
+
+    const post = await Post.findById(id).populate("creator");
+
+    // check post exists.
+    if (!post) {
+      const error = new Error("No post found.");
+      error.code = 404;
+      throw error;
+    }
+
+    // check authorization
+    if (post.creator._id.toString() !== req.userId.toString()) {
+      const error = new Error("Not authorized.");
+      error.code = 403;
+      throw error;
+    }
+
+    // validation
+    const errors = [];
+    if (
+      validator.isEmpty(postInput.title) ||
+      !validator.isLength(postInput.title, { min: 5 })
+    ) {
+      errors.push({ message: "Title is invalid." });
+    }
+    if (
+      validator.isEmpty(postInput.content) ||
+      !validator.isLength(postInput.content, { min: 5 })
+    ) {
+      errors.push({ message: "Title is invalid." });
+    }
+    if (errors.length > 0) {
+      const error = new Error("Invalid input.");
+      error.data = errors;
+      error.code = 422;
+      throw error;
+    }
+
+    post.title = postInput.title;
+    post.content = postInput.content;
+
+    if (postInput.imageUrl !== "undefined") {
+      post.imageUrl = postInput.imageUrl;
+    }
+
+    const updatePost = await post.save();
+    return {
+      ...updatePost._doc,
+      _id: updatePost._id.toString(),
+      createdAt: updatePost.createdAt.toISOString(),
+      updatedAt: updatePost.updatedAt.toISOString(),
+    };
+  },
 };
