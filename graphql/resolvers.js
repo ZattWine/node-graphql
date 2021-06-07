@@ -55,6 +55,7 @@ module.exports = {
       _id: createdUser._id.toString(),
     };
   },
+
   login: async function ({ email, password }) {
     const user = await User.findOne({ email: email });
     if (!user) {
