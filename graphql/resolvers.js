@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 
 const User = require("../models/user");
 const Post = require("../models/post");
+const { clearImage } = require("../util/file");
 
 module.exports = {
   createUser: async function ({ userInput }, req) {
@@ -44,7 +45,10 @@ module.exports = {
     // rounds=25: ~1 hour/hash
     // rounds=31: 2-3 days/hash
     const saltRound = 12; // recommand
-    const hashedPass = await bcrypt.hash(userInput.password, saltRound);
+    const hashedPass = await bcrypt.hash(
+      userInput.password.toString().trim(),
+      saltRound
+    );
     const user = new User({
       email: userInput.email,
       password: hashedPass,
@@ -255,5 +259,37 @@ module.exports = {
       createdAt: updatePost.createdAt.toISOString(),
       updatedAt: updatePost.updatedAt.toISOString(),
     };
+  },
+
+  deletePost: async ({ id }, req) => {
+    // check auth
+    if (!req.isAuth) {
+      const error = new Error("Not authenticated.");
+      error.code = 401;
+      throw error;
+    }
+
+    const post = await Post.findById(id);
+    // check post exists.
+    if (!post) {
+      const error = new Error("No post found.");
+      error.code = 404;
+      throw error;
+    }
+
+    // check authorization
+    if (post.creator.toString() !== req.userId.toString()) {
+      const error = new Error("Not authorized.");
+      error.code = 403;
+      throw error;
+    }
+
+    clearImage(post.imageUrl);
+    await Post.findByIdAndDelete(id);
+    const user = await User.findById(req.userId);
+    user.posts.pull(id);
+    await user.save();
+
+    return true;
   },
 };
