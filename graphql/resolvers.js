@@ -12,7 +12,7 @@ module.exports = {
     }
     if (
       validator.isEmpty(userInput.password) ||
-      validator.isLength(userInput.password, { min: 8 })
+      !validator.isLength(userInput.password, { min: 5 })
     ) {
       errors.push({ message: "Password is too short." });
     }
