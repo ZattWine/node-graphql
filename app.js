@@ -12,9 +12,7 @@ const graphqlResolvers = require("./graphql/resolvers");
 
 const app = express();
 
-/**
- * Filestorage.
- */
+/* Filestorage. */
 const fileStorage = multer.diskStorage({
   destination: (req, file, callback) => {
     callback(null, "images");
@@ -24,9 +22,7 @@ const fileStorage = multer.diskStorage({
   },
 });
 
-/**
- * File filter.
- */
+/* File filter. */
 const fileFilter = (req, file, callback) => {
   if (
     file.mimetype === "image/png" ||
@@ -45,17 +41,13 @@ const fileFilter = (req, file, callback) => {
  */
 app.use(bodyParser.json());
 
-/**
- * Middleware for file storage.
- */
+/* Middleware for file storage. */
 app.use(
   multer({ storage: fileStorage, fileFilter: fileFilter }).single("image")
 );
 app.use("/images", express.static(path.join(__dirname, "images")));
 
-/**
- * To solve Cross-Origin Resource Sharing.
- */
+/* To solve Cross-Origin Resource Sharing. */
 app.use(cors());
 
 app.use(
@@ -67,7 +59,7 @@ app.use(
   })
 );
 
-// Errors handling
+/* Errors handling */
 app.use((error, req, res, next) => {
   console.log(error);
   const status = error.statusCode || 500;
@@ -76,6 +68,7 @@ app.use((error, req, res, next) => {
   res.status(status).json({ message: message, data: data });
 });
 
+/* Database connect and listen server at port 8080. */
 mongoose
   .connect(
     "mongodb+srv://zattwine:q1lm5aP1EQbh1GpV@cluster0.c5muj.mongodb.net/messages-graphql?authSource=admin&replicaSet=atlas-uueejk-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true",
