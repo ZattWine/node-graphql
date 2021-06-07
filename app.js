@@ -10,7 +10,7 @@ const { graphqlHTTP } = require("express-graphql");
 const graphqlSchema = require("./graphql/schema");
 const graphqlResolvers = require("./graphql/resolvers");
 const auth = require("./middlewares/auth");
-const { clearImage } = require('./util/file')
+const { clearImage } = require("./util/file");
 
 const app = express();
 
@@ -86,6 +86,7 @@ app.put("/post-image", (req, res, next) => {
   if (req.body.oldPath) {
     clearImage(req.body.oldPath);
   }
+
   return res
     .status(201)
     .json({ message: "File stored.", filePath: req.file.path });

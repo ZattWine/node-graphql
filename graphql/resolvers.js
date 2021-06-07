@@ -46,7 +46,7 @@ module.exports = {
     // rounds=31: 2-3 days/hash
     const saltRound = 12; // recommand
     const hashedPass = await bcrypt.hash(
-      userInput.password.toString().trim(),
+      userInput.password,
       saltRound
     );
     const user = new User({
